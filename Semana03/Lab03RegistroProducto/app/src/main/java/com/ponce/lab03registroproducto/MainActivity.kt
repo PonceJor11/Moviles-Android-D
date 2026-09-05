@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ponce.lab03registroproducto.ui.theme.Lab03RegistroProductoTheme
@@ -105,7 +106,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Card de Resumen
+        // Card de Resumen y mensaje de confirmación
         if (mostrarResumen) {
             val precioNum = precio.toDoubleOrNull() ?: 0.0
             val cantidadNum = cantidad.toIntOrNull() ?: 0
@@ -132,6 +133,16 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Mensaje verde de confirmación
+            Text(
+                text = "✓ Producto registrado correctamente",
+                color = Color(0xFF2E7D32),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
