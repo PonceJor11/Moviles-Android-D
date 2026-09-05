@@ -18,16 +18,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -74,11 +78,14 @@ fun PantallaPrincipal() {
 
 @Composable
 fun PantallaRegistroNotas(modifier: Modifier = Modifier) {
-    // Estados para las 4 notas
     var nota1 by remember { mutableFloatStateOf(0f) }
     var nota2 by remember { mutableFloatStateOf(0f) }
     var nota3 by remember { mutableFloatStateOf(0f) }
     var nota4 by remember { mutableFloatStateOf(0f) }
+
+    // Estados de controles
+    var redondear by remember { mutableStateOf(false) }
+    var confirmado by remember { mutableStateOf(false) }
 
     val degradado = Brush.verticalGradient(
         colors = listOf(
@@ -108,11 +115,56 @@ fun PantallaRegistroNotas(modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sliders para los 4 cursos
             CursoSliderItem("Fundamentos de Programación", 20, nota1) { nota1 = it }
             CursoSliderItem("Programación Orientada a Objetos", 25, nota2) { nota2 = it }
             CursoSliderItem("Programación en Móviles", 30, nota3) { nota3 = it }
             CursoSliderItem("Base de Datos", 25, nota4) { nota4 = it }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Switch Redondear
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Redondear promedio final", style = MaterialTheme.typography.bodyMedium)
+                Switch(
+                    checked = redondear,
+                    onCheckedChange = { redondear = it }
+                )
+            }
+
+            // Checkbox Confirmación
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 4.dp)
+            ) {
+                Checkbox(
+                    checked = confirmado,
+                    onCheckedChange = { confirmado = it }
+                )
+                Text("Confirmo que las notas son correctas", style = MaterialTheme.typography.bodyMedium)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Botón Calcular
+            Button(
+                onClick = { },
+                enabled = confirmado,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("CALCULAR PROMEDIO")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Asigna las notas y confirma para calcular",
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         Text(
