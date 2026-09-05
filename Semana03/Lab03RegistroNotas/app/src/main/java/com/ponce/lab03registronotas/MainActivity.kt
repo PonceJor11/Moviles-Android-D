@@ -24,6 +24,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -162,12 +163,28 @@ fun PantallaRegistroNotas(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
-                onClick = { mostrarResultado = true },
-                enabled = confirmado,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("CALCULAR PROMEDIO")
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = { mostrarResultado = true },
+                    enabled = confirmado,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("CALCULAR PROMEDIO")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                OutlinedButton(
+                    onClick = {
+                        nota1 = 0f
+                        nota2 = 0f
+                        nota3 = 0f
+                        nota4 = 0f
+                        redondear = false
+                        confirmado = false
+                        mostrarResultado = false
+                    }
+                ) {
+                    Text("LIMPIAR")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -190,7 +207,9 @@ fun PantallaRegistroNotas(modifier: Modifier = Modifier) {
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Promedio ponderado: " + String.format("%.2f", ponderado))
@@ -216,13 +235,21 @@ fun PantallaRegistroNotas(modifier: Modifier = Modifier) {
                                 fontWeight = FontWeight.Bold
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text("Aporte por curso:", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                        Text("• Fundamentos: ${nota1.toInt()} × 20% = " + String.format("%.2f", nota1.toInt() * 0.20f), style = MaterialTheme.typography.bodySmall)
+                        Text("• POO: ${nota2.toInt()} × 25% = " + String.format("%.2f", nota2.toInt() * 0.25f), style = MaterialTheme.typography.bodySmall)
+                        Text("• Móviles: ${nota3.toInt()} × 30% = " + String.format("%.2f", nota3.toInt() * 0.30f), style = MaterialTheme.typography.bodySmall)
+                        Text("• Base de Datos: ${nota4.toInt()} × 25% = " + String.format("%.2f", nota4.toInt() * 0.25f), style = MaterialTheme.typography.bodySmall)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "✓ Promedio calculated correctamente",
+                    text = "✓ Promedio calculado correctamente",
                     color = Color(0xFF2E7D32),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
@@ -254,6 +281,9 @@ fun CursoSliderItem(
     nota: Float,
     onNotaChange: (Float) -> Unit
 ) {
+    val colorBadge = if (nota.toInt() >= 13) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
+    val colorTexto = if (nota.toInt() >= 13) Color(0xFF2E7D32) else Color(0xFFC62828)
+
     Column(modifier = Modifier.padding(vertical = 2.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -267,11 +297,12 @@ fun CursoSliderItem(
             }
             Box(
                 modifier = Modifier
-                    .background(Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
+                    .background(colorBadge, RoundedCornerShape(8.dp))
                     .padding(horizontal = 10.dp, vertical = 2.dp)
             ) {
                 Text(
                     text = "${nota.toInt()}",
+                    color = colorTexto,
                     fontWeight = FontWeight.Bold
                 )
             }
