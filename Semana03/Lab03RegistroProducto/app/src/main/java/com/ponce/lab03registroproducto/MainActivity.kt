@@ -69,6 +69,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Campo Nombre
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
@@ -78,6 +79,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Fila Precio y Cantidad
         Row(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = precio,
@@ -100,8 +102,18 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = {
+                    val p = precio.toDoubleOrNull()
+                    val c = cantidad.toIntOrNull()
+
+                    // Corrección humana: Validación estricta de vacíos y conversión numérica
                     if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
-                        mensajeError = "Por favor complete todos los campos"
+                        mensajeError = "⚠️ Todos los campos son obligatorios."
+                        mostrarResumen = false
+                    } else if (p == null || p <= 0) {
+                        mensajeError = "⚠️ Ingrese un precio válido mayor a 0."
+                        mostrarResumen = false
+                    } else if (c == null || c <= 0) {
+                        mensajeError = "⚠️ Ingrese una cantidad entera mayor a 0."
                         mostrarResumen = false
                     } else {
                         mensajeError = ""
@@ -127,16 +139,19 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Mensaje de Error
         if (mensajeError.isNotEmpty()) {
             Text(
                 text = mensajeError,
-                color = Color.Red,
-                style = MaterialTheme.typography.bodyMedium
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Card de Resumen
         if (mostrarResumen) {
