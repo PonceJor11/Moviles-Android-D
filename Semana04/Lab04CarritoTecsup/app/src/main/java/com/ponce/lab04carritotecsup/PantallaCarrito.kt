@@ -1,6 +1,8 @@
 package com.ponce.lab04carritotecsup
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -71,10 +73,16 @@ fun PantallaCarrito() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Comprobación temporal
-        Text(
-            text = "Productos: ${productos.size}",
-            style = MaterialTheme.typography.titleMedium
-        )
+        // Avance de la Etapa 3 para el COMMIT 3
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(productos) { producto ->
+                Text(text = producto.nombre)
+            }
+        }
     }
 }
