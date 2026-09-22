@@ -5,7 +5,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -21,7 +24,7 @@ fun PantallaCarrito() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Campo Nombre
+        // Formulario
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
@@ -31,7 +34,6 @@ fun PantallaCarrito() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Fila para Precio y Cantidad
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -52,7 +54,6 @@ fun PantallaCarrito() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón AGREGAR
         Button(
             onClick = {
                 val precioNum = precio.toDoubleOrNull() ?: 0.0
@@ -60,7 +61,6 @@ fun PantallaCarrito() {
 
                 if (nombre.isNotBlank() && precioNum > 0 && cantidadNum > 0) {
                     productos.add(Producto(nombre, precioNum, cantidadNum))
-                    // Limpieza de campos
                     nombre = ""
                     precio = ""
                     cantidad = ""
@@ -73,7 +73,7 @@ fun PantallaCarrito() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Avance de la Etapa 3 para el COMMIT 3
+        // Etapa 3: Lista de productos en LazyColumn
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -81,7 +81,58 @@ fun PantallaCarrito() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(productos) { producto ->
-                Text(text = producto.nombre)
+                TarjetaProducto(
+                    producto = producto,
+                    onEliminar = { productos.remove(producto) }
+                )
+            }
+        }
+    }
+}
+
+// Composable TarjetaProducto completado
+@Composable
+fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
+    val importe = producto.precio * producto.cantidad
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                // Text nombre (titleMedium, negrita)
+                Text(
+                    text = producto.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                // Text "S/ precio x cantidad" (gris)
+                Text(
+                    text = "S/ ${String.format("%.2f", producto.precio)} x ${producto.cantidad}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
+
+            // Text del importe (precio x cantidad, 2 decimales)
+            Text(
+                text = "S/ ${String.format("%.2f", importe)}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+
+            // Botón de eliminar (Usando TextButton o Button para evitar conflicto de librería de íconos)
+            TextButton(
+                onClick = onEliminar,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Eliminar", fontWeight = FontWeight.Bold)
             }
         }
     }
