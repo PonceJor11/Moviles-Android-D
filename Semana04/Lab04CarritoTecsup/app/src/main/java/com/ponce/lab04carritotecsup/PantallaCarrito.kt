@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -19,12 +20,17 @@ fun PantallaCarrito() {
 
     val productos = remember { mutableStateListOf<Producto>() }
 
+    // Cálculos para la Etapa 4
+    val subtotal = productos.sumOf { it.precio * it.cantidad }
+    val igv = subtotal * 0.18
+    val total = subtotal + igv
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Formulario
+        // --- FORMULARIO ---
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
@@ -73,24 +79,109 @@ fun PantallaCarrito() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Etapa 3: Lista de productos en LazyColumn
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        // --- ESTADO VACÍO O LAZYCOLUMN ---
+        if (productos.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "El carrito está vacío",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Agrega un producto arriba para empezar",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(productos) { producto ->
+                    TarjetaProducto(
+                        producto = producto,
+                        onEliminar = { productos.remove(producto) }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- PANEL DE TOTALES ---
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
         ) {
-            items(productos) { producto ->
-                TarjetaProducto(
-                    producto = producto,
-                    onEliminar = { productos.remove(producto) }
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = "Productos: ${productos.size}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
                 )
+
+                Divider(modifier = Modifier.padding(vertical = 4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Subtotal:")
+                    Text("S/ ${String.format("%.2f", subtotal)}")
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("IGV (18%):")
+                    Text("S/ ${String.format("%.2f", igv)}")
+                }
+
+                Divider(modifier = Modifier.padding(vertical = 4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "TOTAL:",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "S/ ${String.format("%.2f", total)}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
 }
 
-// Composable TarjetaProducto completado
+// Composable TarjetaProducto
 @Composable
 fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
     val importe = producto.precio * producto.cantidad
@@ -103,13 +194,11 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                // Text nombre (titleMedium, negrita)
                 Text(
                     text = producto.nombre,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                // Text "S/ precio x cantidad" (gris)
                 Text(
                     text = "S/ ${String.format("%.2f", producto.precio)} x ${producto.cantidad}",
                     style = MaterialTheme.typography.bodyMedium,
@@ -117,7 +206,6 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
                 )
             }
 
-            // Text del importe (precio x cantidad, 2 decimales)
             Text(
                 text = "S/ ${String.format("%.2f", importe)}",
                 style = MaterialTheme.typography.titleMedium,
@@ -125,7 +213,6 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
                 modifier = Modifier.padding(end = 8.dp)
             )
 
-            // Botón de eliminar (Usando TextButton o Button para evitar conflicto de librería de íconos)
             TextButton(
                 onClick = onEliminar,
                 colors = ButtonDefaults.textButtonColors(
