@@ -134,7 +134,7 @@ fun AppTecsupFit() {
             }
 
             composable("reservas") {
-                ReservasScreen(reservas = reservasState)
+                ReservasScreen()
             }
 
             composable("rutinas") {
