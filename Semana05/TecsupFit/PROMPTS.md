@@ -1,7 +1,7 @@
 # Registro de Prompts e Interacciones con la IA
 
 ## Proyecto: TECSUP Fit
-**Estudiante:** Diego Ramos
+**Estudiante:** Ponce Jordy
 
 ---
 
