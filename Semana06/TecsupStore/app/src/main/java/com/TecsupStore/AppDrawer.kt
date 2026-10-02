@@ -1,8 +1,10 @@
 package com.TecsupStore
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,23 +16,42 @@ import kotlinx.coroutines.launch
 fun AppDrawer() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    var selectedItem by remember { mutableIntStateOf(0) }
+
+    val items = listOf("Inicio", "Mis pedidos", "Favoritos", "Perfil", "Cerrar sesión")
+    val icons = listOf(
+        Icons.Default.Home,
+        Icons.Default.ShoppingCart,
+        Icons.Default.Favorite,
+        Icons.Default.Person,
+        Icons.Default.ExitToApp
+    )
+
+    val listaProductos = remember {
+        listOf(
+            Producto("Audífonos Bluetooth", 89.0),
+            Producto("Smartwatch Deportivo", 199.0),
+            Producto("Funda para Celular", 25.0)
+        )
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text(
-                    text = "Menú Principal",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                HorizontalDivider()
-                NavigationDrawerItem(
-                    label = { Text("Inicio") },
-                    selected = true,
-                    onClick = { scope.launch { drawerState.close() } },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
+                Spacer(modifier = Modifier.height(16.dp))
+                items.forEachIndexed { index, item ->
+                    NavigationDrawerItem(
+                        icon = { Icon(icons[index], contentDescription = null) },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = {
+                            selectedItem = index
+                            scope.launch { drawerState.close() }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
             }
         }
     ) {
@@ -46,12 +67,14 @@ fun AppDrawer() {
                 )
             }
         ) { padding ->
-            Box(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                Text("Contenido Principal", modifier = Modifier.padding(16.dp))
+                items(listaProductos) { producto ->
+                    TarjetaProducto(producto = producto)
+                }
             }
         }
     }
