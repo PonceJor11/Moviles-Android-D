@@ -1,0 +1,8 @@
+com.tuapp.navlab.app-pngs-0 /Users/tecsup/Moviles-Android-D/Semana05/NavLab/app/build/generated/res/pngs/debug
+com.tuapp.navlab.app-updated_navigation_xml-1 /Users/tecsup/Moviles-Android-D/Semana05/NavLab/app/build/generated/updated_navigation_xml/debug
+com.tuapp.navlab.app-packageDebugResources-2 /Users/tecsup/Moviles-Android-D/Semana05/NavLab/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.tuapp.navlab.app-packageDebugResources-3 /Users/tecsup/Moviles-Android-D/Semana05/NavLab/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.tuapp.navlab.app-debug-4 /Users/tecsup/Moviles-Android-D/Semana05/NavLab/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.tuapp.navlab.app-debug-5 /Users/tecsup/Moviles-Android-D/Semana05/NavLab/app/src/debug/res
+com.tuapp.navlab.app-main-6 /Users/tecsup/Moviles-Android-D/Semana05/NavLab/app/src/main/res
+gradleHome-0 /Users/tecsup/.gradle
