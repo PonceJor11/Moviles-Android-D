@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun TarjetaProducto(producto: Producto) {
-    // Estado para controlar si el menú desplegable está visible o no
     var expanded by remember { mutableStateOf(false) }
 
     Card(
@@ -34,9 +33,26 @@ fun TarjetaProducto(producto: Producto) {
             }
 
             Box {
-                // Botón de 3 puntos que cambia 'expanded' a true
                 IconButton(onClick = { expanded = true }) {
                     Icon(Icons.Default.MoreVert, contentDescription = "Opciones")
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Favoritos") },
+                        onClick = { expanded = false }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Compartir") },
+                        onClick = { expanded = false }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Reportar") },
+                        onClick = { expanded = false }
+                    )
                 }
             }
         }
