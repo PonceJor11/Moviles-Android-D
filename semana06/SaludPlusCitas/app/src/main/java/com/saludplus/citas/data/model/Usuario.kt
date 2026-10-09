@@ -4,5 +4,7 @@ data class Usuario(
     val id: String,
     val nombre: String,
     val correo: String,
-    val clave: String
+    val telefono: String = "",
+    val clave: String,
+    val username: String,
 )

@@ -1,28 +1,38 @@
 package com.saludplus.citas.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.saludplus.citas.data.repository.Repositorio
-import com.saludplus.citas.ui.screens.agendamiento.*
-import com.saludplus.citas.ui.screens.auth.*
-import com.saludplus.citas.ui.screens.citas.*
+import androidx.navigation.navArgument
+import com.saludplus.citas.ui.screens.agendamiento.CitaExitosaScreen
+import com.saludplus.citas.ui.screens.agendamiento.ConfirmarCitaScreen
+import com.saludplus.citas.ui.screens.agendamiento.EspecialidadesScreen
+import com.saludplus.citas.ui.screens.agendamiento.FechaHoraScreen
+import com.saludplus.citas.ui.screens.agendamiento.MedicosScreen
+import com.saludplus.citas.ui.screens.auth.LoginScreen
+import com.saludplus.citas.ui.screens.auth.RegistroScreen
+import com.saludplus.citas.ui.screens.auth.SplashScreen
+import com.saludplus.citas.ui.screens.citas.DetalleCitaScreen
+import com.saludplus.citas.ui.screens.citas.MisCitasScreen
 import com.saludplus.citas.ui.screens.home.HomeScreen
 import com.saludplus.citas.ui.screens.notificaciones.NotificacionesScreen
 import com.saludplus.citas.ui.screens.perfil.PerfilScreen
 import com.saludplus.citas.ui.screens.resultados.ResultadosScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(
-    navController: NavHostController = rememberNavController()
-) {
+fun AppNavigation() {
+    val navController = rememberNavController()
+
     NavHost(
         navController = navController,
         startDestination = Rutas.SPLASH
     ) {
-        // 1. Splash
+        // 1. Splash Screen
         composable(Rutas.SPLASH) {
             SplashScreen(
                 onNavigateToLogin = { navController.navigate(Rutas.LOGIN) },
@@ -33,17 +43,16 @@ fun AppNavigation(
         // 2. Registro
         composable(Rutas.REGISTRO) {
             RegistroScreen(
-                onRegistroExitoso = {
+                onNavigateToHome = {
                     navController.navigate(Rutas.HOME) {
                         popUpTo(Rutas.SPLASH) { inclusive = true }
                     }
                 },
-                onNavigateToTerminos = { navController.navigate(Rutas.TERMINOS) },
                 onNavigateToLogin = { navController.navigate(Rutas.LOGIN) }
             )
         }
 
-        // 8. Iniciar Sesión
+        // Login
         composable(Rutas.LOGIN) {
             LoginScreen(
                 onLoginExitoso = {
@@ -55,68 +64,99 @@ fun AppNavigation(
             )
         }
 
-        // 3. Inicio
+        // 3. Home
         composable(Rutas.HOME) {
             HomeScreen(
                 onNavigateToEspecialidades = { navController.navigate(Rutas.ESPECIALIDADES) },
-                onNavigateToMedicos = { espId -> navController.navigate("${Rutas.MEDICOS}/$espId") },
-                onNavigateToNotificaciones = { navController.navigate(Rutas.NOTIFICACIONES) }
+                onNavigateToMedicos = { especialidadId ->
+                    navController.navigate("medicos/$especialidadId")
+                },
+                onNavigateToNotificaciones = { navController.navigate(Rutas.NOTIFICACIONES) },
+                onNavigateToMisCitas = { navController.navigate(Rutas.MIS_CITAS) },
+                onNavigateToPerfil = { navController.navigate(Rutas.PERFIL) },
+                onNavigateToResultados = { navController.navigate(Rutas.RESULTADOS) }
             )
         }
 
         // 4. Especialidades
         composable(Rutas.ESPECIALIDADES) {
             EspecialidadesScreen(
-                onSeleccionarEspecialidad = { espId ->
-                    navController.navigate("${Rutas.MEDICOS}/$espId")
-                }
+                onSeleccionarEspecialidad = { especialidadId ->
+                    navController.navigate("medicos/$especialidadId")
+                },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        // 5. Médicos
-        composable("${Rutas.MEDICOS}/{especialidadId}") { backStackEntry ->
-            val espId = backStackEntry.arguments?.getString("especialidadId") ?: ""
+        // 5. Selección de Médico
+        composable(
+            route = "medicos/{especialidadId}",
+            arguments = listOf(navArgument("especialidadId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val especialidadId = backStackEntry.arguments?.getString("especialidadId") ?: ""
             MedicosScreen(
-                especialidadId = espId,
-                onSeleccionarMedico = { medId ->
-                    navController.navigate("${Rutas.FECHA_HORA}/$medId")
-                }
+                especialidadId = especialidadId,
+                onSeleccionarMedico = { medicoId ->
+                    navController.navigate("fecha_hora/$especialidadId/$medicoId")
+                },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        // 6. Fecha y Hora
-        composable("${Rutas.FECHA_HORA}/{medicoId}") { backStackEntry ->
-            val medId = backStackEntry.arguments?.getString("medicoId") ?: ""
+        // 6. Selección de Fecha y Hora
+        composable(
+            route = "fecha_hora/{especialidadId}/{medicoId}",
+            arguments = listOf(
+                navArgument("especialidadId") { type = NavType.StringType },
+                navArgument("medicoId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val especialidadId = backStackEntry.arguments?.getString("especialidadId") ?: ""
+            val medicoId = backStackEntry.arguments?.getString("medicoId") ?: ""
             FechaHoraScreen(
-                medicoId = medId,
-                onContinuar = { fecha, hora ->
-                    navController.navigate("${Rutas.CONFIRMAR_CITA}/$medId/$fecha/$hora")
-                }
+                especialidadId = especialidadId,
+                medicoId = medicoId,
+                onNavigateToConfirmar = { espId, medId, fecha, hora ->
+                    navController.navigate("confirmar_cita/$espId/$medId/$fecha/$hora")
+                },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
         // 7. Confirmar Cita
-        composable("${Rutas.CONFIRMAR_CITA}/{medicoId}/{fecha}/{hora}") { backStackEntry ->
-            val medId = backStackEntry.arguments?.getString("medicoId") ?: ""
+        composable(
+            route = "confirmar_cita/{especialidadId}/{medicoId}/{fecha}/{hora}",
+            arguments = listOf(
+                navArgument("especialidadId") { type = NavType.StringType },
+                navArgument("medicoId") { type = NavType.StringType },
+                navArgument("fecha") { type = NavType.StringType },
+                navArgument("hora") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val especialidadId = backStackEntry.arguments?.getString("especialidadId") ?: ""
+            val medicoId = backStackEntry.arguments?.getString("medicoId") ?: ""
             val fecha = backStackEntry.arguments?.getString("fecha") ?: ""
             val hora = backStackEntry.arguments?.getString("hora") ?: ""
-            val medico = Repositorio.obtenerMedico(medId)
 
             ConfirmarCitaScreen(
-                especialidadId = medico?.especialidadId ?: "",
-                medicoId = medId,
+                especialidadId = especialidadId,
+                medicoId = medicoId,
                 fecha = fecha,
                 hora = hora,
-                onConfirmado = { citaId ->
-                    navController.navigate("${Rutas.CITA_EXITOSA}/$citaId") {
+                onNavigateToExitosa = { citaId ->
+                    navController.navigate("cita_exitosa/$citaId") {
                         popUpTo(Rutas.HOME) { inclusive = false }
                     }
-                }
+                },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        // 9. Cita Agendada
-        composable("${Rutas.CITA_EXITOSA}/{citaId}") { backStackEntry ->
+        // Cita Exitosa
+        composable(
+            route = "cita_exitosa/{citaId}",
+            arguments = listOf(navArgument("citaId") { type = NavType.StringType })
+        ) { backStackEntry ->
             val citaId = backStackEntry.arguments?.getString("citaId") ?: ""
             CitaExitosaScreen(
                 citaId = citaId,
@@ -128,26 +168,21 @@ fun AppNavigation(
             )
         }
 
-        // 10. Mis Citas
+        // Mis Citas
         composable(Rutas.MIS_CITAS) {
             MisCitasScreen(
-                onVerDetalle = { citaId -> navController.navigate("${Rutas.DETALLE_CITA}/$citaId") }
+                onVerDetalle = { citaId ->
+                    navController.navigate("detalle_cita/$citaId")
+                },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        // 11. Perfil
-        composable(Rutas.PERFIL) {
-            PerfilScreen(
-                onCerrarSesion = {
-                    navController.navigate(Rutas.SPLASH) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        // 12. Detalle de Cita (Reto)
-        composable("${Rutas.DETALLE_CITA}/{citaId}") { backStackEntry ->
+        // Detalle de Cita
+        composable(
+            route = "detalle_cita/{citaId}",
+            arguments = listOf(navArgument("citaId") { type = NavType.StringType })
+        ) { backStackEntry ->
             val citaId = backStackEntry.arguments?.getString("citaId") ?: ""
             DetalleCitaScreen(
                 citaId = citaId,
@@ -155,19 +190,30 @@ fun AppNavigation(
             )
         }
 
-        // 13. Resultados (Reto)
-        composable(Rutas.RESULTADOS) {
-            ResultadosScreen()
-        }
-
-        // 14. Notificaciones (Reto)
+        // Notificaciones
         composable(Rutas.NOTIFICACIONES) {
-            NotificacionesScreen()
+            NotificacionesScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
 
-        // 15. Términos (Reto)
-        composable(Rutas.TERMINOS) {
-            TerminosScreen(onVolver = { navController.popBackStack() })
+        // Resultados / Historial
+        composable(Rutas.RESULTADOS) {
+            ResultadosScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Perfil
+        composable(Rutas.PERFIL) {
+            PerfilScreen(
+                onCerrarSesion = {
+                    navController.navigate(Rutas.SPLASH) {
+                        popUpTo(Rutas.HOME) { inclusive = true }
+                    }
+                },
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }
