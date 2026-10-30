@@ -1,7 +1,6 @@
 package com.tecsup.huellitasvet.ui.dueno
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,9 +32,10 @@ private val ColorVerdePrincipal = Color(0xFF00966D)
 fun FichaMascotaScreen(
     mascotaId: Int,
     vm: MascotaViewModel,
+    esVeterinario: Boolean = false, // Parámetro para identificar si es vista de doctor
     onVolver: () -> Unit,
     onEditar: (Int) -> Unit,
-    onPedirCita: (Int) -> Unit
+    onPedirCita: ((Int) -> Unit)? = null // Hacemos la lambda opcional
 ) {
     val mascota by vm.obtenerMascota(mascotaId).collectAsState()
     val historial by vm.historial(mascotaId).collectAsState()
@@ -107,18 +107,24 @@ fun FichaMascotaScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Botones Pedir Cita y Editar
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(
-                        onClick = { onPedirCita(m.id) },
-                        colors = ButtonDefaults.buttonColors(containerColor = ColorVerdePrincipal),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .weight(1.5f)
-                            .height(48.dp)
-                    ) {
-                        Icon(Icons.Default.EventNote, contentDescription = null, tint = Color.White)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Pedir cita", color = Color.White, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Solo renderiza "Pedir cita" si NO es veterinario y la acción existe
+                    if (!esVeterinario && onPedirCita != null) {
+                        Button(
+                            onClick = { onPedirCita(m.id) },
+                            colors = ButtonDefaults.buttonColors(containerColor = ColorVerdePrincipal),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .weight(1.5f)
+                                .height(48.dp)
+                        ) {
+                            Icon(Icons.Default.EventNote, contentDescription = null, tint = Color.White)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = "Pedir cita", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
                     }
 
                     OutlinedButton(
@@ -219,7 +225,7 @@ fun HistorialItem(item: CitaConDetalle) {
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = item.cita.diagnostico.ifBlank { "Sin diagnóstico detallado" },
+                    text = item.cita.diagnostico?.ifBlank { "Sin diagnóstico detallado" } ?: "Sin diagnóstico detallado",
                     fontSize = 13.sp,
                     color = Color.DarkGray
                 )

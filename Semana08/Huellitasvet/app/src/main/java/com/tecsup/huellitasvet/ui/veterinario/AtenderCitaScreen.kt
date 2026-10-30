@@ -60,7 +60,7 @@ fun AtenderCitaScreen(
     ) { padding ->
         citaDetalle?.let { item ->
             val mascota = item.mascota.mascota
-            val dueno = item.dueno
+            val dueno = item.mascota.dueno
             val servicio = item.servicio
             val cita = item.cita
 

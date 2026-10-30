@@ -152,7 +152,7 @@ fun FilaAgendaCita(
                             fontSize = 14.sp
                         )
                         Text(
-                            text = "Dueño: ${item.dueno.nombre}",
+                            text = "Dueño: ${item.mascota.dueno.nombre}",
                             fontSize = 12.sp,
                             color = Color.Gray
                         )

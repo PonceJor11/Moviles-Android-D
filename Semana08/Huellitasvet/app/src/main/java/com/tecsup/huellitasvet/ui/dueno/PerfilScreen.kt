@@ -36,8 +36,7 @@ fun PerfilScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val modoOscuro by sesionVm.modoOscuro.collectAsState()
-    val notificaciones by prefsStore.notificaciones.collectAsState()
-
+    val notificaciones by prefsStore.notificaciones.collectAsState(initial = true)
     Scaffold(
         topBar = { TopAppBar(title = { Text("Perfil", fontWeight = FontWeight.Bold) }) }
     ) { padding ->

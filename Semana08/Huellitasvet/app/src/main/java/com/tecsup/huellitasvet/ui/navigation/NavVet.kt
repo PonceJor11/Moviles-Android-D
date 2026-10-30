@@ -208,9 +208,10 @@ fun NavVet(
                 FichaMascotaScreen(
                     mascotaId = id,
                     vm = mascotaViewModel,
+                    esVeterinario = true, // Oculta o botão de pedir consulta para o veterinário
                     onVolver = { navController.popBackStack() },
                     onEditar = { mId -> navController.navigate("${Destinos.FORMULARIO_MASCOTA}/$mId") },
-                    onPedirCita = { navController.navigate(Destinos.PEDIR_CITA) }
+                    onPedirCita = null // Como é a visão do médico, não passa a ação de agendar
                 )
             }
 
