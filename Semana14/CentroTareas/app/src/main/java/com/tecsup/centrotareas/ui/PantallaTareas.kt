@@ -560,3 +560,4 @@ private fun Dato(etiqueta: String, valor: String) {
         Text(valor, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
     }
 }
+
