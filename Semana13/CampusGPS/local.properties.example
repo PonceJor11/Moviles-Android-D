@@ -1,0 +1,3 @@
+# Copia este archivo como local.properties (Android Studio lo crea con sdk.dir)
+# y agrega tu clave de Maps SDK for Android. Este archivo NO se sube a Git.
+MAPS_API_KEY=TU_CLAVE_AQUI

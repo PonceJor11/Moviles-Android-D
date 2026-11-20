@@ -126,17 +126,4 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override fun observarIngresosDesde(fechaInicio: String): Flow<Double> =
         db.citaDao().ingresosDesde(fechaInicio)
-
-    // --- MEJORAS FASE 2 ---
-    override fun getPesosPorMascota(mascotaId: Int): Flow<List<Double>> {
-        return db.citaDao().getPesosPorMascota(mascotaId)
-    }
-
-    override fun buscarPacientes(query: String, especie: String): Flow<List<MascotaConDueno>> {
-        return db.mascotaDao().buscarPacientes(query, especie)
-    }
-
-    override suspend fun reprogramarCita(citaId: Int, nuevaFecha: String, nuevaHora: String) {
-        db.citaDao().reprogramarCita(citaId, nuevaFecha, nuevaHora)
-    }
 }

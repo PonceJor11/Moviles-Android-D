@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "396143594334",
+    "project_id": "labponced",
+    "storage_bucket": "labponced.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:396143594334:android:12ca19edfec5ee7fc95dcf",
+        "android_client_info": {
+          "package_name": "com.tecsup.authfirebaseapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDwv78a1RgyAhfkrfJlWjXrSt_tN0S9Dc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

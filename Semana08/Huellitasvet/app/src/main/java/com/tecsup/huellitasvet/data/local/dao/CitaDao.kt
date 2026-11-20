@@ -61,10 +61,4 @@ interface CitaDao {
 
     @Query("SELECT COALESCE(SUM(precio), 0.0) FROM citas WHERE estado = 'ATENDIDA' AND fecha >= :fechaInicio")
     fun ingresosDesde(fechaInicio: String): Flow<Double>
-
-    @Query("SELECT pesoRegistrado FROM citas WHERE mascotaId = :mascotaId AND estado = 'ATENDIDA' AND pesoRegistrado IS NOT NULL ORDER BY fecha ASC, hora ASC")
-    fun getPesosPorMascota(mascotaId: Int): Flow<List<Double>>
-
-    @Query("UPDATE citas SET fecha = :nuevaFecha, hora = :nuevaHora WHERE id = :citaId AND estado IN ('PENDIENTE', 'CONFIRMADA')")
-    suspend fun reprogramarCita(citaId: Int, nuevaFecha: String, nuevaHora: String)
 }

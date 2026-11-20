@@ -97,17 +97,7 @@ class MascotaViewModel(
         }
     }
 
-    fun getPesosPorMascota(mascotaId: Int): StateFlow<List<Double>> {
-        return repo.getPesosPorMascota(mascotaId)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
-            )
-    }
     fun limpiarMensajeBorrado() {
         _mensajeBorrado.value = null
-
-
     }
 }

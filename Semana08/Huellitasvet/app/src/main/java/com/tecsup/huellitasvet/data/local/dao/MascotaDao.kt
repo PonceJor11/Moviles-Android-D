@@ -37,12 +37,4 @@ interface MascotaDao {
 
     @Query("SELECT COUNT(*) FROM citas WHERE mascotaId = :mascotaId")
     suspend fun contarCitas(mascotaId: Int): Int
-
-    @Transaction
-    @Query("""
-    SELECT * FROM mascotas 
-    WHERE (:query = '' OR nombre LIKE '%' || :query || '%' OR duenoId IN (SELECT id FROM usuarios WHERE nombre LIKE '%' || :query || '%'))
-    AND (:especie = '' OR especie = :especie)
-""")
-    fun buscarPacientes(query: String, especie: String): Flow<List<MascotaConDueno>>
 }

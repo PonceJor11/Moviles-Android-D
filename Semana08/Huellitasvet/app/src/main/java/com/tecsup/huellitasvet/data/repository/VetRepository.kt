@@ -45,14 +45,4 @@ interface VetRepository {
     fun observarCantidadPorEstado(estado: EstadoCita): Flow<Int>
     fun observarCitasPorServicio(): Flow<List<ConteoServicio>>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
-
-    // --- MEJORAS FASE 2 ---
-    // Mejora 1: Gráfico de peso
-    fun getPesosPorMascota(mascotaId: Int): Flow<List<Double>>
-
-    // Mejora 2: Búsqueda de pacientes (reutiliza MascotaConDueno)
-    fun buscarPacientes(query: String, especie: String): Flow<List<MascotaConDueno>>
-
-    // Mejora 3: Reprogramar cita
-    suspend fun reprogramarCita(citaId: Int, nuevaFecha: String, nuevaHora: String)
 }
