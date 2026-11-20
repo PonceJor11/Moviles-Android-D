@@ -1,0 +1,20 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Android Studio
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Secretos y configuración local (NUNCA subir la clave de API)
+local.properties
+*.keystore
+*.jks
+
+# SO
+.DS_Store
+Thumbs.db
