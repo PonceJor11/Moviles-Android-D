@@ -56,12 +56,6 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
     val composeBom = platform("androidx.compose:compose-bom:2025.05.01")
     implementation(composeBom)
 
@@ -73,12 +67,13 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
-    implementation("com.google.maps.android:maps-compose:6.12.0")
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("com.google.maps.android:maps-compose:6.4.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     testImplementation("junit:junit:4.13.2")
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }

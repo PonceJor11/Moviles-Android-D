@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,11 +23,16 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.ponce.campusgps.model.UbicacionUi
 import com.ponce.campusgps.util.formatearDistancia
 import com.ponce.campusgps.viewmodel.MapaViewModel
@@ -36,15 +42,27 @@ import java.util.Locale
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
-    val lugares by vm.lugares.collectAsState()
+    val lugares by vm.lugaresVisibles.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val categoriaActiva by vm.categoriaActiva.collectAsState()
+    val radioActivo by vm.radioActivo.collectAsState()
+    val idsEnRadio by vm.idsEnRadio.collectAsState()
 
     val contexto = LocalContext.current
+
+    // Estado del permiso para la capa nativa del mapa; se vuelve a leer al regresar
+    // a la app (por ejemplo, después de concederlo desde Ajustes).
+    var permisoConcedido by remember { mutableStateOf(tienePermisoUbicacion(contexto)) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        permisoConcedido = tienePermisoUbicacion(contexto)
+    }
+
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { resultado ->
-        if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
+        permisoConcedido = resultado.values.any { it }
+        if (permisoConcedido) vm.buscar() else vm.permisoDenegado()
     }
 
     fun alPulsar() {
@@ -76,15 +94,31 @@ fun PantallaMapa(vm: MapaViewModel) {
                 .fillMaxSize()
                 .padding(relleno)
         ) {
-            MapaUbicacion(
-                estado = estado,
-                lugares = lugares,
-                seleccionado = seleccionado,
-                masCercano = masCercano,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-            )
+            ) {
+                MapaUbicacion(
+                    estado = estado,
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    masCercano = masCercano,
+                    radioMetros = radioActivo,
+                    permisoConcedido = permisoConcedido,
+                    modifier = Modifier.fillMaxSize()
+                )
+                FiltrosMapa(
+                    categorias = vm.categorias,
+                    categoriaActiva = categoriaActiva,
+                    onCategoria = { vm.filtrarPorCategoria(it) },
+                    radios = vm.radios,
+                    radioActivo = radioActivo,
+                    onRadio = { vm.cambiarRadio(it) },
+                    mostrarRadios = estado is UbicacionUi.Lista,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
             Column(
                 modifier = Modifier
@@ -136,6 +170,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 lugares = lugares,
                 seleccionado = seleccionado,
                 masCercanoId = masCercano?.id,
+                dentroDelRadio = idsEnRadio,
                 onClick = { vm.seleccionar(it) },
                 modifier = Modifier
                     .fillMaxWidth()

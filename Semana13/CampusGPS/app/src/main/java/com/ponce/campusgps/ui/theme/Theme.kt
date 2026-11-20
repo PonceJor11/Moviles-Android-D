@@ -1,6 +1,8 @@
 package com.ponce.campusgps.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -12,10 +14,20 @@ private val EsquemaClaro = lightColorScheme(
     onPrimaryContainer = AzulOscuro
 )
 
+private val EsquemaOscuro = darkColorScheme(
+    primary = AzulSuave,
+    onPrimary = AzulNoche,
+    primaryContainer = AzulContenedorOscuro,
+    onPrimaryContainer = AzulClaro
+)
+
 @Composable
-fun CampusGPSTheme(content: @Composable () -> Unit) {
+fun CampusGPSTheme(
+    modoOscuro: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
     MaterialTheme(
-        colorScheme = EsquemaClaro,
+        colorScheme = if (modoOscuro) EsquemaOscuro else EsquemaClaro,
         typography = Typography,
         content = content
     )

@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ponce.campusgps.data.LugaresRepositoryLocal
+import com.ponce.campusgps.data.PreferenciasRepositoryDataStore
 import com.ponce.campusgps.data.UbicacionRepositoryGoogle
 import com.ponce.campusgps.ui.PantallaMapa
 import com.ponce.campusgps.ui.theme.CampusGPSTheme
@@ -21,7 +22,8 @@ class MainActivity : ComponentActivity() {
         // Las implementaciones concretas solo se conocen aquí; el resto trabaja con interfaces.
         val fabrica = CampusViewModelFactory(
             ubicacionRepo = UbicacionRepositoryGoogle(applicationContext),
-            lugaresRepo = LugaresRepositoryLocal()
+            lugaresRepo = LugaresRepositoryLocal(),
+            preferenciasRepo = PreferenciasRepositoryDataStore(applicationContext)
         )
 
         setContent {
