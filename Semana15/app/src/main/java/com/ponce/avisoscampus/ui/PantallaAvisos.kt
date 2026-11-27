@@ -32,6 +32,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ponce.avisoscampus.model.PermisoUi
 import com.ponce.avisoscampus.notificacion.Notificador
+import com.ponce.avisoscampus.receiver.CargadorReceiver
 import com.ponce.avisoscampus.receiver.ModoAvionReceiver
 import com.ponce.avisoscampus.ui.theme.GrisFondo
 import com.ponce.avisoscampus.ui.theme.GrisNeutro
@@ -82,9 +84,9 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val escuchandoCargador by vm.escuchandoCargador.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
 
-    // Paso 2: permiso
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido -> vm.permisoRespondido(concedido) }
@@ -93,7 +95,6 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
     }
 
-    // Paso 3 y 8: el ViewModel pide, la pantalla (con Context) muestra
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
             val mostrado = Notificador.mostrar(contexto, aviso)
@@ -101,7 +102,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
 
-    // Paso 6: registrar y quitar el receptor según el Switch
+    // Receptor modo avión
     DisposableEffect(escuchando) {
         if (escuchando) {
             val receptor = ModoAvionReceiver { activo -> vm.alCambiarModoAvion(activo) }
@@ -112,6 +113,26 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 ContextCompat.RECEIVER_NOT_EXPORTED
             )
             onDispose { contexto.unregisterReceiver(receptor) }
+        } else {
+            onDispose { }
+        }
+    }
+
+    // Receptor cargador (Fase 2)
+    DisposableEffect(escuchandoCargador) {
+        if (escuchandoCargador) {
+            val receptorCargador = CargadorReceiver { conectado -> vm.alCambiarCargador(conectado) }
+            val filtro = IntentFilter().apply {
+                addAction(Intent.ACTION_POWER_CONNECTED)
+                addAction(Intent.ACTION_POWER_DISCONNECTED)
+            }
+            ContextCompat.registerReceiver(
+                contexto,
+                receptorCargador,
+                filtro,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { contexto.unregisterReceiver(receptorCargador) }
         } else {
             onDispose { }
         }
@@ -165,7 +186,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 ) { Text("Permitir notificaciones") }
             }
 
-            // Mensaje de error (Paso 8)
+            // Mensaje de error
             mensaje?.let { texto ->
                 Card(
                     shape = RoundedCornerShape(20.dp),
@@ -240,7 +261,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
             }
 
-            // Receptor
+            // Receptores (Modo avión + Cargador)
             SeccionCard("Receptor de anuncios", Icons.Filled.Phone) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -264,6 +285,31 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                         )
                     )
                 }
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Escuchar el cargador", fontWeight = FontWeight.Medium)
+                        Text(
+                            if (escuchandoCargador) "Escuchando conexión de energía" else "Receptor apagado",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = escuchandoCargador,
+                        onCheckedChange = { vm.cambiarEscuchaCargador(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = Marron,
+                            checkedThumbColor = Color.White
+                        )
+                    )
+                }
             }
 
             // Historial
@@ -272,7 +318,6 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     }
 }
 
-/** Tarjeta contenedora con ícono y título; la comparten todas las secciones. */
 @Composable
 internal fun SeccionCard(
     titulo: String,
@@ -331,7 +376,7 @@ private fun Encabezado(totalAvisos: Int, permiso: PermisoUi) {
             )
             Text(
                 "$totalAvisos ${if (totalAvisos == 1) "aviso registrado" else "avisos registrados"}" +
-                    if (permiso is PermisoUi.Concedido) " · notificaciones activas" else "",
+                        if (permiso is PermisoUi.Concedido) " · notificaciones activas" else "",
                 style = MaterialTheme.typography.labelLarge,
                 color = Color.White
             )

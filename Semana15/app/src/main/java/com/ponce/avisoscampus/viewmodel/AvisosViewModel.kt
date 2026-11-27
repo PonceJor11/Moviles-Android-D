@@ -17,14 +17,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * Decide qué avisar y lo anota en el Repository.
- * No usa Context, NotificationManager ni BroadcastReceiver.
+- Decide qué avisar y lo anota en el Repository.
+- No usa Context, NotificationManager ni BroadcastReceiver.
  */
 class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
 
     val avisos: StateFlow<List<Aviso>> = repo.avisos
 
-    // Evento de una sola vez: "muestra esta notificación" (lo atiende la pantalla)
     private val _eventos = MutableSharedFlow<Aviso>()
     val eventos: SharedFlow<Aviso> = _eventos.asSharedFlow()
 
@@ -34,13 +33,13 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
-    // Paso 2: permiso
+    // Permiso
     fun permisoRespondido(concedido: Boolean) {
         _permiso.value = if (concedido) PermisoUi.Concedido else PermisoUi.Denegado
-        if (concedido) _mensaje.value = null // Paso 8: el mensaje se quita solo
+        if (concedido) _mensaje.value = null
     }
 
-    // Paso 3: aviso inmediato
+    // Aviso inmediato
     fun avisarAhora() {
         viewModelScope.launch {
             val aviso = repo.registrar("Tarea lista", "Tu entrega fue registrada", Origen.BOTON)
@@ -48,7 +47,7 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
         }
     }
 
-    // Paso 5: recordatorio con cuenta regresiva
+    // Recordatorio con texto largo (usa canal Urgentes + BigTextStyle)
     private var trabajo: Job? = null
 
     private val _faltan = MutableStateFlow<Int?>(null)
@@ -63,7 +62,9 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
                     delay(1000)
                 }
                 val aviso = repo.registrar(
-                    "Recordatorio", "Revisa tu laboratorio pendiente", Origen.RECORDATORIO
+                    "Recordatorio urgente",
+                    "Revisa tu laboratorio pendiente de Desarrollo Móvil, verifica tus commits en GitHub y sube las capturas antes del cierre.",
+                    Origen.RECORDATORIO
                 )
                 _eventos.emit(aviso)
             } finally {
@@ -76,7 +77,7 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
         trabajo?.cancel()
     }
 
-    // Paso 6: modo avión
+    // Modo avión
     private val _escuchandoAvion = MutableStateFlow(false)
     val escuchandoAvion: StateFlow<Boolean> = _escuchandoAvion.asStateFlow()
 
@@ -93,7 +94,26 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
         }
     }
 
-    // Paso 8: permiso denegado
+    // Receptor del cargador (Fase 2)
+    private val _escuchandoCargador = MutableStateFlow(false)
+    val escuchandoCargador: StateFlow<Boolean> = _escuchandoCargador.asStateFlow()
+
+    fun cambiarEscuchaCargador(valor: Boolean) {
+        _escuchandoCargador.value = valor
+    }
+
+    fun alCambiarCargador(conectado: Boolean) {
+        viewModelScope.launch {
+            val aviso = repo.registrar(
+                "Cargador",
+                if (conectado) "Conectado a la corriente" else "Desconectado de la corriente",
+                Origen.CARGADOR
+            )
+            _eventos.emit(aviso)
+        }
+    }
+
+    // Permiso denegado
     fun noSePudoMostrar() {
         _mensaje.value = "Sin permiso: el aviso se guardó en el historial, pero no se mostró"
     }
