@@ -41,3 +41,4 @@ El ViewModel decide qu√© avisar y lo anota en el Repository; la pantalla (que s√
 3. Notificaciones:  
    ![Notificaciones](Imagen3.jpeg)
 
+
